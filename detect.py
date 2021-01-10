@@ -11,6 +11,7 @@ import cv2 as cv
 import numpy as np
 from copy import copy
 import easygui
+from matplotlib import pyplot as plt
 
 kernel = np.array([[0,-1,0,], [-1,4,-1],[0,-1,0]])
 dilation_kernel = np.ones((5,5), np.uint8)
@@ -98,13 +99,30 @@ def check_correct_stich(src, edges):
         return True
 
 def check_lumination(src):
-    return False
+    lumin_thres = [25, 225]
+    percent_thres = 5.0
+    gray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
+    sum = gray.shape[0]*gray.shape[1]
+    histogram = cv.calcHist([gray], [0], None, [256], [0,256])
+    # print(histogram)
+    bad_lumination_counter = 0
+    for i in range(0,255):            
+        percent_calc = 100*(histogram[i]/sum)
+        if((i<=lumin_thres[0] or i >=lumin_thres[1]) and percent_calc > percent_thres):
+            bad_lumination_counter=bad_lumination_counter+1    
+    plt.plot(histogram)
+    plt.xlim([0,256])
+    plt.show()
+    if(bad_lumination_counter>0):    
+        return False
+    else:
+        return True
 
 scale = 10
 hsv = None
 
 img_path = chose_file()
-img = cv.imread('sample/defect/map_4.jpg')
+img = cv.imread(img_path)
 width = int(img.shape[1]*scale/100)
 height = int(img.shape[0]*scale/100)
 dim = (width,height)
@@ -125,10 +143,12 @@ if check_correct_stich(img_resized, edges):
     print("Test2: Image is stiched correctly")
 else:
     print("Test2: Image stiching failed")
-    
+if check_lumination(img_resized):
+    print("Test 3: Lumination correct")
+else:
+    print("Test 3: Bad lumination")
 
 print("------------------------------------------------")
-# cv.imshow("img",img_resized )
 while True:
     if cv.waitKey(100)==27:
         break
