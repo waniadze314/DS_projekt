@@ -10,7 +10,7 @@ Created on Mon Nov  2 07:55:10 2020
 import cv2 as cv
 import numpy as np
 from copy import copy
-from matplotlib import pyplot as plt
+import easygui
 
 kernel = np.array([[0,-1,0,], [-1,4,-1],[0,-1,0]])
 dilation_kernel = np.ones((5,5), np.uint8)
@@ -21,6 +21,10 @@ up_thres = 180
 dest = None
 edges = None
 detect = None
+
+def chose_file():
+    path=easygui.fileopenbox()
+    return path
 
 def add_edge(src, dest):
     blue, green, red = cv.split(src)
@@ -93,10 +97,14 @@ def check_correct_stich(src, edges):
     else:
         return True
 
+def check_lumination(src):
+    return False
+
 scale = 10
 hsv = None
 
-img = cv.imread('sample/defect/map_2.jpg')
+img_path = chose_file()
+img = cv.imread('sample/defect/map_4.jpg')
 width = int(img.shape[1]*scale/100)
 height = int(img.shape[0]*scale/100)
 dim = (width,height)
@@ -108,16 +116,24 @@ cv.createTrackbar("Lower threshold", "Edges", low_thres, 255, on_change_lower)
 cv.createTrackbar("Upper threshold", "Edges", up_thres, 255, on_change_upper)
 color, saturation, value = cv.split(hsv)
 edges, detect = thres_filter(low_thres, up_thres)
+print("------------------------------------------------")
 if find_black_rect(img_resized, edges):
-        print("No rectangle artifacts detected")
+        print("Test1: No rectangle artifacts detected")
 else:
-        print("Image corrupted")
+        print("Test1: Image corrupted")
 if check_correct_stich(img_resized, edges):
-    print("Image is stiched correctly")
+    print("Test2: Image is stiched correctly")
 else:
-    print("Image stiching failed")
+    print("Test2: Image stiching failed")
+    
+
+print("------------------------------------------------")
 # cv.imshow("img",img_resized )
-# while True:
-#     if cv.waitKey(100)==27:
-#         break
+while True:
+    if cv.waitKey(100)==27:
+        break
 cv.destroyAllWindows()
+
+
+
+#convex hull
