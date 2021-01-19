@@ -10,6 +10,7 @@ Created on Mon Nov  2 07:55:10 2020
 import cv2 as cv
 import numpy as np
 import easygui
+from matplotlib import pyplot as plt
 
 kernel = np.array([[0,-1,0,], [-1,4,-1],[0,-1,0]])
 erode_kernel = np.ones((5,5), np.uint8)
@@ -106,6 +107,7 @@ def check_lumination(src):
     gray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
     sum = gray.shape[0]*gray.shape[1]
     histogram = cv.calcHist([gray], [0], None, [256], [0,256])
+    plt.plot(histogram)
     bad_lumination_counter = 0
     for i in range(0,255):            
         percent_calc = 100*(histogram[i]/sum)
